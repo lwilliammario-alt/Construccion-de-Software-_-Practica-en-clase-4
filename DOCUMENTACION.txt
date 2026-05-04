@@ -1,0 +1,686 @@
+
+================================================================================
+   DOCUMENTACION COMPLETA DEL PROYECTO: ConstruSoftTicket
+================================================================================
+
+DESCRIPCION GENERAL DEL PROYECTO
+---------------------------------
+ConstruSoftTicket es una aplicacion web full-stack para el registro de tickets
+(solicitudes o reportes de problemas). Usa una arquitectura limpia (Clean
+Architecture) en el backend con .NET 8 y una interfaz en React 19 + Vite.
+
+TECNOLOGIAS UTILIZADAS
+-----------------------
+Backend  : C# / .NET 8 / ASP.NET Core / Entity Framework Core 8
+Base de datos : PostgreSQL (via Npgsql)
+Frontend : React 19 + Vite / JavaScript (JSX)
+Estilos  : CSS (variables CSS, modo oscuro automatico)
+Doc. API : Swagger (Swashbuckle)
+ORM      : Entity Framework Core con migraciones
+
+================================================================================
+ESTRUCTURA DE CARPETAS Y ARCHIVOS
+================================================================================
+
+ConstruSoftTicket/                  <- Raiz del proyecto completo
+|
++-- backend/                        <- Todo el codigo del servidor (.NET)
+|   +-- ConstruSoftTicket.sln
+|   +-- ConstruSoftTicket.API/
+|   +-- ConstruSoftTicket.Application/
+|   +-- ConstruSoftTicket.Domain/
+|   +-- ConstruSoftTicket.Infrastructure/
+|
++-- frontend/                       <- Todo el codigo del cliente (React)
+|   +-- index.html
+|   +-- vite.config.js
+|   +-- package.json
+|   +-- src/
+|       +-- main.jsx
+|       +-- App.jsx
+|       +-- index.css
+|       +-- App.css
+|       +-- pages/
+|           +-- CreateTicket.jsx
+|
++-- package-lock.json               <- Archivo de bloqueo de dependencias raiz
+
+================================================================================
+BACKEND - DETALLE COMPLETO
+================================================================================
+
+------------------------------------------------------------------------
+ARCHIVO: ConstruSoftTicket.sln
+------------------------------------------------------------------------
+Tipo    : Archivo de solucion de Visual Studio (.sln)
+Ubicacion: backend/
+
+Que hace:
+  Agrupa los 4 proyectos del backend en una sola solucion de Visual Studio.
+  Permite abrirlos todos juntos desde el IDE con un solo archivo.
+
+Proyectos registrados:
+  - ConstruSoftTicket.Domain
+  - ConstruSoftTicket.Application
+  - ConstruSoftTicket.Infrastructure
+  - ConstruSoftTicket.API
+
+Configuraciones definidas:
+  - Debug|Any CPU   -> para desarrollo y depuracion
+  - Release|Any CPU -> para produccion
+
+No se edita manualmente; Visual Studio lo gestiona automaticamente.
+
+------------------------------------------------------------------------
+CARPETA: ConstruSoftTicket.Domain/
+------------------------------------------------------------------------
+Que es:
+  La capa de DOMINIO de la arquitectura limpia. Contiene las entidades
+  del negocio, puras, sin dependencias de frameworks ni bases de datos.
+  Es el nucleo del sistema.
+
+Dependencias externas: NINGUNA (no depende de otras capas ni librerias)
+
+  --- Archivo: ConstruSoftTicket.Domain.csproj ---
+  Archivo de proyecto de .NET.
+  Define que la libreria apunta a net8.0, habilita nullable y usings
+  implicitos. No tiene paquetes NuGet porque el dominio no depende de
+  nada externo.
+
+  --- Archivo: Entities/Ticket.cs ---
+  Que hace:
+    Define la entidad principal del sistema: el Ticket.
+    Representa una fila en la tabla "Tickets" de la base de datos.
+
+  Propiedades:
+    - Id          (int)      : Clave primaria, autogenerada por la BD
+    - Titulo      (string)   : Titulo o asunto del ticket
+    - Descripcion (string)   : Detalle del problema o solicitud
+    - FechaCreacion (DateTime): Fecha/hora UTC de creacion automatica
+
+  --- Archivo: Class1.cs ---
+  Archivo generado automaticamente por Visual Studio al crear el proyecto.
+  Esta vacio y puede eliminarse. Sirve como marcador de posicion.
+
+------------------------------------------------------------------------
+CARPETA: ConstruSoftTicket.Application/
+------------------------------------------------------------------------
+Que es:
+  La capa de APLICACION. Contiene los casos de uso del sistema:
+  servicios, interfaces y DTOs. Orquesta la logica de negocio sin
+  conocer detalles de base de datos ni del framework web.
+
+Dependencias: Referencia a ConstruSoftTicket.Domain (solo entidades)
+
+  --- Archivo: ConstruSoftTicket.Application.csproj ---
+  Archivo de proyecto de .NET.
+  Define dependencia hacia el proyecto Domain.
+  No instala paquetes NuGet propios.
+
+  --- Archivo: DTOs/CreateTicketDto.cs ---
+  DTO = Data Transfer Object (Objeto de Transferencia de Datos).
+
+  Que hace:
+    Define el contrato de los datos que el cliente (frontend) debe
+    enviar al crear un ticket. Solo expone los campos necesarios,
+    ocultando Id y FechaCreacion que los genera el sistema.
+
+  Propiedades:
+    - Titulo      (string): Titulo enviado por el usuario
+    - Descripcion (string): Descripcion enviada por el usuario
+
+  Por que existe:
+    Evita exponer directamente la entidad Ticket en la API, lo que
+    podria causar problemas de seguridad o binding no deseado.
+
+  --- Archivo: Interfaces/ITicketRepository.cs ---
+  Que hace:
+    Define el CONTRATO (interfaz) que debe cumplir cualquier clase
+    que implemente el repositorio de tickets.
+
+  Metodo declarado:
+    - Task AddAsync(Ticket ticket)
+      Agrega un ticket a la fuente de datos de forma asincrona.
+
+  Por que existe:
+    Desacopla la logica de negocio (Application) del acceso real a
+    datos (Infrastructure). El servicio depende de esta interfaz, no
+    de la implementacion concreta, facilitando pruebas y cambios.
+
+  --- Archivo: Interfaces/ITicketService.cs ---
+  Que hace:
+    Define el CONTRATO del servicio de tickets que el controlador
+    utilizara mediante inyeccion de dependencias.
+
+  Metodo declarado:
+    - Task<string> CreateTicketAsync(CreateTicketDto dto)
+      Crea un ticket y retorna un mensaje de confirmacion.
+
+  Por que existe:
+    Permite que el controlador dependa de una abstraccion, no de una
+    implementacion concreta, siguiendo el principio de inversion de
+    dependencias (SOLID - D).
+
+  --- Archivo: Services/TicketService.cs ---
+  Que hace:
+    Implementacion concreta de ITicketService. Contiene la logica de
+    negocio real para crear un ticket.
+
+  Proceso interno:
+    1. Recibe el DTO con los datos del cliente.
+    2. Crea un objeto Ticket (entidad del dominio) con esos datos.
+    3. Llama al repositorio para persistir el ticket en la BD.
+    4. Retorna el mensaje "Ticket registrado correctamente."
+
+  Dependencia inyectada:
+    - ITicketRepository: para guardar el ticket en la BD.
+
+  --- Archivo: Class1.cs ---
+  Archivo vacio generado por Visual Studio. Puede eliminarse.
+
+------------------------------------------------------------------------
+CARPETA: ConstruSoftTicket.Infrastructure/
+------------------------------------------------------------------------
+Que es:
+  La capa de INFRAESTRUCTURA. Contiene los detalles tecnicos de acceso
+  a datos: el contexto de Entity Framework Core, los repositorios
+  concretos y las migraciones de base de datos.
+
+Dependencias:
+  - ConstruSoftTicket.Application (interfaces a implementar)
+  - ConstruSoftTicket.Domain (entidades a persistir)
+  - Microsoft.EntityFrameworkCore 8.0.6
+  - Microsoft.EntityFrameworkCore.Tools 8.0.6
+  - Npgsql.EntityFrameworkCore.PostgreSQL 8.0.4
+
+  --- Archivo: ConstruSoftTicket.Infrastructure.csproj ---
+  Archivo de proyecto de .NET.
+  Registra los paquetes NuGet de EF Core y Npgsql, y las referencias
+  a los proyectos Application y Domain.
+
+  --- Archivo: Data/AppDbContext.cs ---
+  Que hace:
+    Es el CONTEXTO DE BASE DE DATOS de Entity Framework Core.
+    Representa la conexion a PostgreSQL y administra las entidades.
+
+  Hereda de: DbContext (clase base de EF Core)
+
+  Propiedades:
+    - Tickets (DbSet<Ticket>): representa la tabla "Tickets" en la BD.
+      Permite ejecutar consultas LINQ sobre esa tabla.
+
+  Por que existe:
+    EF Core necesita un DbContext para saber que entidades mapear a
+    tablas, gestionar transacciones y ejecutar consultas SQL.
+
+  --- Archivo: Repositories/TicketRepository.cs ---
+  Que hace:
+    Implementacion concreta de ITicketRepository.
+    Se encarga de guardar tickets en la base de datos PostgreSQL.
+
+  Metodo implementado:
+    - AddAsync(Ticket ticket):
+        1. Llama a _context.Tickets.AddAsync(ticket)
+           -> marca el ticket como "pendiente de insertar" en EF Core
+        2. Llama a _context.SaveChangesAsync()
+           -> ejecuta el INSERT SQL real en PostgreSQL
+
+  Dependencia inyectada:
+    - AppDbContext: el contexto de base de datos.
+
+  --- Carpeta: Migrations/ ---
+  Que es:
+    Carpeta generada automaticamente por EF Core al ejecutar el
+    comando "dotnet ef migrations add".
+
+  Archivos dentro:
+    - 20260424001654_InitialCreate.cs
+      La migracion inicial. Contiene los metodos Up() y Down().
+      Up()  : crea la tabla "Tickets" con sus columnas en PostgreSQL.
+      Down(): elimina la tabla "Tickets" (para revertir).
+
+    - 20260424001654_InitialCreate.Designer.cs
+      Archivo de metadatos generado automaticamente por EF Core.
+      Contiene el snapshot del modelo en el momento de la migracion.
+      No se edita manualmente.
+
+    - AppDbContextModelSnapshot.cs
+      Snapshot actual del modelo de datos.
+      EF Core lo usa para calcular que cambios hay entre migraciones.
+      Se actualiza automaticamente con cada nueva migracion.
+
+  --- Archivo: Class1.cs ---
+  Archivo vacio generado por Visual Studio. Puede eliminarse.
+
+------------------------------------------------------------------------
+CARPETA: ConstruSoftTicket.API/
+------------------------------------------------------------------------
+Que es:
+  La capa de PRESENTACION / API. Es el punto de entrada de la
+  aplicacion. Expone los endpoints HTTP que el frontend consume.
+  Configura todos los servicios y el pipeline de middlewares.
+
+Dependencias:
+  - ConstruSoftTicket.Application
+  - ConstruSoftTicket.Infrastructure
+  - Microsoft.AspNetCore.OpenApi 8.0.26
+  - Microsoft.EntityFrameworkCore.Design 8.0.6
+  - Swashbuckle.AspNetCore 6.6.2
+
+  --- Archivo: ConstruSoftTicket.API.csproj ---
+  Archivo de proyecto de .NET para la API web.
+  Usa el SDK "Microsoft.NET.Sdk.Web" que incluye ASP.NET Core.
+  Instala Swagger (Swashbuckle) para documentacion interactiva de la API.
+  Instala EF Core Design para soporte de migraciones desde este proyecto.
+  Referencia los proyectos Application e Infrastructure.
+
+  --- Archivo: Program.cs ---
+  ARCHIVO MAS IMPORTANTE DEL BACKEND.
+  Es el punto de entrada de toda la aplicacion .NET.
+
+  Que hace (en orden):
+    1. Crea el WebApplicationBuilder (builder).
+    2. Configura CORS: permite solicitudes desde http://localhost:5173
+       (el frontend en desarrollo). Sin esto el navegador bloquea
+       las peticiones por politica de mismo origen.
+    3. Registra los controladores de la API.
+    4. Registra Swagger para documentacion automatica.
+    5. Registra AppDbContext con PostgreSQL como proveedor.
+       Lee la cadena de conexion desde appsettings.json.
+    6. Registra ITicketRepository -> TicketRepository (Scoped).
+    7. Registra ITicketService -> TicketService (Scoped).
+    8. Construye la app (app = builder.Build()).
+    9. Activa Swagger y SwaggerUI.
+    10. Aplica el middleware de CORS.
+    11. Aplica autorizacion.
+    12. Mapea los controladores a sus rutas.
+    13. Inicia el servidor con app.Run().
+
+  Scoped significa: una instancia nueva por cada solicitud HTTP.
+
+  --- Archivo: appsettings.json ---
+  Archivo de configuracion principal de la aplicacion .NET.
+
+  Contiene:
+    - ConnectionStrings.DefaultConnection:
+        Cadena de conexion a PostgreSQL.
+        Host=localhost, Puerto=5432, Base=ConstruSoftTicketDB,
+        Usuario=postgres, Password=12345.
+    - Logging: nivel de log "Information" por defecto,
+        "Warning" para logs internos de ASP.NET Core.
+    - AllowedHosts: "*" -> acepta solicitudes de cualquier host.
+
+  IMPORTANTE: En produccion nunca se deben guardar credenciales
+  directamente aqui. Se deben usar variables de entorno o secretos.
+
+  --- Archivo: appsettings.Development.json ---
+  Configuracion especifica para el entorno de DESARROLLO.
+  Sobreescribe valores de appsettings.json solo cuando la app corre
+  en modo Development (variable ASPNETCORE_ENVIRONMENT=Development).
+  Actualmente solo ajusta los niveles de logging.
+
+  --- Archivo: ConstruSoftTicket.API.http ---
+  Archivo de pruebas HTTP compatible con el cliente REST de Visual Studio
+  (o extension REST Client en VS Code).
+
+  Que contiene:
+    - Una variable con la URL base del servidor (localhost:5139).
+    - Una solicitud GET de ejemplo a /weatherforecast.
+  Sirve para probar endpoints directamente desde el IDE sin necesidad
+  de Postman u otra herramienta externa.
+
+  --- Carpeta: Controllers/ ---
+  Contiene los controladores que definen los endpoints HTTP de la API.
+
+  --- Archivo: Controllers/TicketController.cs ---
+  Que hace:
+    Define el controlador REST para el recurso "Ticket".
+    Recibe solicitudes HTTP del frontend y las delega al servicio.
+
+  Ruta base: api/ticket  (definida con [Route("api/[controller]")])
+
+  Endpoints:
+    POST api/ticket
+      - Recibe un JSON con { titulo, descripcion }
+      - Llama al servicio para crear el ticket
+      - Retorna HTTP 200 OK con { "mensaje": "Ticket registrado..." }
+
+  Decoradores:
+    [ApiController] : habilita validacion automatica de modelos,
+                      respuestas automaticas 400 para datos invalidos.
+    [HttpPost]      : indica que el metodo responde a POST.
+
+  Dependencia inyectada: ITicketService (via constructor)
+
+  --- Carpeta: Properties/ ---
+  Contiene launchSettings.json (configuracion de inicio del proyecto).
+  Define perfiles de ejecucion: IIS Express, HTTP, HTTPS, etc.
+  Especifica el puerto (5139 por defecto) y variables de entorno.
+
+================================================================================
+FRONTEND - DETALLE COMPLETO
+================================================================================
+
+------------------------------------------------------------------------
+ARCHIVO: index.html  (raiz de frontend/)
+------------------------------------------------------------------------
+Que es:
+  El unico archivo HTML del proyecto. Es el punto de entrada de la
+  aplicacion React cuando se abre en el navegador.
+
+Que hace:
+  - Declara el tipo de documento HTML5.
+  - Configura charset UTF-8 para soportar acentos y caracteres especiales.
+  - Configura el viewport para que sea responsive en moviles.
+  - Define el titulo "ConstruSoft Ticket" en la pestana del navegador.
+  - Incluye un <div id="root"> donde React monta toda la aplicacion.
+  - Carga /src/main.jsx como modulo ES (entry point de React).
+
+------------------------------------------------------------------------
+ARCHIVO: package.json  (raiz de frontend/)
+------------------------------------------------------------------------
+Que es:
+  Archivo de configuracion del proyecto Node.js / npm.
+  Define el nombre, version, scripts y dependencias del frontend.
+
+Scripts disponibles:
+  npm run dev     -> Inicia el servidor de desarrollo Vite (localhost:5173)
+  npm run build   -> Compila el proyecto para produccion (carpeta dist/)
+  npm run lint    -> Ejecuta ESLint para detectar errores de codigo
+  npm run preview -> Previsualiza el build de produccion localmente
+
+Dependencias de produccion:
+  react     ^19.2.5  -> Libreria principal para construir interfaces
+  react-dom ^19.2.5  -> Conecta React con el DOM del navegador
+
+Dependencias de desarrollo:
+  vite                     ^8.0.10  -> Servidor de desarrollo y bundler
+  @vitejs/plugin-react     ^6.0.1   -> Plugin de Vite para soportar JSX/React
+  eslint                   ^10.2.1  -> Linter para detectar errores de JS
+  eslint-plugin-react-hooks ^7.1.1  -> Reglas ESLint para hooks de React
+  eslint-plugin-react-refresh ^0.5.2 -> Soporte para Fast Refresh en ESLint
+  @types/react             ^19.2.14 -> Tipos TypeScript para React
+  @types/react-dom         ^19.2.3  -> Tipos TypeScript para React DOM
+  globals                  ^17.5.0  -> Variables globales para ESLint
+
+------------------------------------------------------------------------
+ARCHIVO: vite.config.js  (raiz de frontend/)
+------------------------------------------------------------------------
+Que es:
+  Archivo de configuracion de Vite, el bundler y servidor de desarrollo.
+
+Que hace:
+  - Importa defineConfig de Vite para autocompletado y validacion.
+  - Importa el plugin de React para que Vite procese archivos .jsx.
+  - Activa el plugin React que habilita: JSX, Fast Refresh (refresco
+    automatico en el navegador al guardar cambios), y optimizaciones.
+
+------------------------------------------------------------------------
+ARCHIVO: src/main.jsx
+------------------------------------------------------------------------
+Que es:
+  El PUNTO DE ENTRADA de la aplicacion React.
+  Es el primer archivo JavaScript que ejecuta el navegador.
+
+Que hace:
+  1. Importa StrictMode de React para activar advertencias adicionales
+     en desarrollo (detecta efectos secundarios, APIs obsoletas).
+  2. Importa createRoot de react-dom/client para la API moderna de
+     React 18+.
+  3. Importa los estilos globales (index.css).
+  4. Importa el componente raiz App.
+  5. Selecciona el div#root del HTML y crea una raiz React sobre el.
+  6. Renderiza <App /> dentro de <StrictMode>.
+
+------------------------------------------------------------------------
+ARCHIVO: src/App.jsx
+------------------------------------------------------------------------
+Que es:
+  El componente RAIZ de la aplicacion React.
+  Actua como punto de entrada del arbol de componentes.
+
+Que hace:
+  Importa y renderiza directamente el componente CreateTicket.
+  En un proyecto mas grande, aqui se configura el enrutador (React Router)
+  y el layout principal de la aplicacion.
+
+------------------------------------------------------------------------
+ARCHIVO: src/pages/CreateTicket.jsx
+------------------------------------------------------------------------
+Que es:
+  El componente principal y unico formulario de la aplicacion.
+  Permite al usuario registrar un nuevo ticket enviando datos al backend.
+
+Estado (useState):
+  - titulo      : almacena el texto del campo Titulo del formulario
+  - descripcion : almacena el texto del campo Descripcion del formulario
+
+Funcion handleSubmit (asincrona):
+  Se ejecuta cuando el usuario hace clic en "Registrar".
+  Proceso:
+    1. Previene el reload de pagina (e.preventDefault()).
+    2. Construye el objeto ticket con titulo y descripcion del estado.
+    3. Hace un fetch POST a http://localhost:5139/api/ticket con el
+       ticket serializado en JSON.
+    4. Lee la respuesta como texto (para evitar errores si no es JSON).
+    5. Si la respuesta no fue OK (error HTTP), muestra alerta de error.
+    6. Si fue OK, intenta parsear el JSON y muestra el mensaje de exito.
+    7. Limpia los campos del formulario (setTitulo(""), setDescripcion("")).
+    8. Si hay error de red (sin conexion), muestra alerta de error.
+
+Interfaz renderizada:
+  - Contenedor div con padding de 20px
+  - Titulo <h2>: "Registro de Ticket"
+  - Formulario con:
+      * Input type="text"    para el titulo (controlado, requerido)
+      * Textarea             para la descripcion (controlada, requerida)
+      * Boton type="submit"  "Registrar" para enviar el formulario
+
+------------------------------------------------------------------------
+ARCHIVO: src/index.css
+------------------------------------------------------------------------
+Que es:
+  Archivo de estilos GLOBALES de la aplicacion React.
+  Se aplica a toda la pagina, no solo a un componente especifico.
+
+Que define:
+  Variables CSS (:root):
+    --text          : color de texto normal
+    --text-h        : color de titulos
+    --bg            : color de fondo
+    --border        : color de bordes
+    --accent        : color de acento (purpura)
+    --accent-bg     : fondo semi-transparente del acento
+    --shadow        : sombra predefinida reutilizable
+    --sans          : fuente sans-serif del sistema
+    --mono          : fuente monoespaciada
+
+  Modo oscuro automatico:
+    Usa @media (prefers-color-scheme: dark) para cambiar todas las
+    variables de color si el sistema operativo usa modo oscuro.
+    No requiere ningun boton de toggle; es automatico.
+
+  Estilos base:
+    - body: margin 0
+    - #root: contenedor centrado de 1126px maximo, columna flex
+    - h1, h2: tipografia del sistema, color de titulo
+    - code: estilo monoespacio con fondo diferenciado
+    - Responsive: reduce tamanos de fuente en pantallas < 1024px
+
+------------------------------------------------------------------------
+ARCHIVO: src/App.css
+------------------------------------------------------------------------
+Que es:
+  Estilos especificos de componentes del template inicial de Vite+React.
+  Actualmente no afecta la funcionalidad real del proyecto, ya que
+  CreateTicket.jsx no usa estas clases.
+
+Clases definidas:
+  .counter   : estilo para un contador con acento y hover
+  .hero      : layout para imagenes hero con transformaciones 3D
+  #center    : contenedor centrado con flexbox
+  #next-steps: seccion de proximos pasos con borde superior
+  #docs      : borde derecho para separar columnas
+  #spacer    : espaciador con altura fija
+  .ticks     : decoracion de bordes con pseudo-elementos ::before/::after
+
+Nota: Este archivo es remanente del template de Vite. Puede limpiarse
+cuando la aplicacion tenga su propio sistema de estilos.
+
+------------------------------------------------------------------------
+ARCHIVO: frontend/.gitignore
+------------------------------------------------------------------------
+Lista los archivos y carpetas que Git NO debe rastrear:
+  - node_modules/ : dependencias de npm (muy pesadas, se reinstalan)
+  - dist/         : build de produccion (generado, no se versiona)
+  - .env*         : variables de entorno con datos sensibles
+
+================================================================================
+LIBRERIAS Y PAQUETES - EXPLICACION DETALLADA
+================================================================================
+
+--- BACKEND (NuGet) ---
+
+Microsoft.AspNetCore (incluido en SDK Web)
+  Framework web de .NET. Provee el servidor HTTP, routing, middleware,
+  controladores, inyeccion de dependencias y todo el pipeline de la API.
+
+Microsoft.EntityFrameworkCore 8.0.6
+  ORM (Object-Relational Mapper) para .NET.
+  Permite trabajar con la base de datos usando objetos C# en lugar de
+  escribir SQL manualmente. Genera el SQL automaticamente.
+
+Microsoft.EntityFrameworkCore.Tools 8.0.6
+  Herramientas de linea de comandos para EF Core.
+  Permite ejecutar: dotnet ef migrations add, dotnet ef database update.
+  Solo se usa en desarrollo (PrivateAssets=all).
+
+Microsoft.EntityFrameworkCore.Design 8.0.6
+  Componente de diseno de EF Core requerido para que las migraciones
+  funcionen correctamente desde el proyecto API.
+  Solo se usa en desarrollo (PrivateAssets=all).
+
+Npgsql.EntityFrameworkCore.PostgreSQL 8.0.4
+  Proveedor de EF Core para PostgreSQL.
+  Traduce las operaciones de EF Core al dialecto SQL de PostgreSQL
+  y gestiona la conexion via el protocolo de PostgreSQL.
+  "Npgsql" es el driver nativo de PostgreSQL para .NET.
+
+Swashbuckle.AspNetCore 6.6.2
+  Libreria que genera documentacion Swagger/OpenAPI automaticamente
+  leyendo los controladores y modelos de la API.
+  Proporciona Swagger UI: una pagina web interactiva en /swagger donde
+  se pueden ver y probar todos los endpoints sin herramientas externas.
+
+Microsoft.AspNetCore.OpenApi 8.0.26
+  Extension oficial de Microsoft para soporte OpenAPI en ASP.NET Core 8.
+  Complementa a Swashbuckle con metadatos de la API.
+
+--- FRONTEND (npm) ---
+
+react 19.2.5
+  La libreria JavaScript principal para construir interfaces de usuario.
+  Permite crear componentes reutilizables, gestionar estado (useState),
+  efectos (useEffect) y renderizado eficiente mediante Virtual DOM.
+
+react-dom 19.2.5
+  El puente entre React y el DOM real del navegador.
+  Provee createRoot() para montar la aplicacion React en el HTML,
+  y se encarga de aplicar los cambios del Virtual DOM al DOM real.
+
+vite 8.0.10
+  Servidor de desarrollo ultrarapido y bundler moderno.
+  En desarrollo: sirve archivos con ES Modules nativos sin compilar todo.
+  En produccion: compila y optimiza el codigo (minificacion, tree-shaking).
+  Es mucho mas rapido que webpack para proyectos React modernos.
+
+@vitejs/plugin-react 6.0.1
+  Plugin oficial de Vite para React.
+  Transforma JSX a JavaScript normal, habilita Fast Refresh (los
+  componentes se actualizan en el navegador sin recargar la pagina
+  al guardar cambios en el codigo).
+
+eslint 10.2.1
+  Linter de JavaScript/JSX.
+  Analiza el codigo estaticamente para detectar errores, malas practicas
+  y problemas de estilo antes de ejecutar la aplicacion.
+
+eslint-plugin-react-hooks 7.1.1
+  Plugin de ESLint que agrega reglas especificas para los hooks de React
+  (useState, useEffect, etc.). Detecta usos incorrectos de hooks como
+  llamarlos dentro de condicionales o bucles.
+
+eslint-plugin-react-refresh 0.5.2
+  Plugin de ESLint para compatibilidad con React Fast Refresh de Vite.
+  Advierte cuando un componente no puede beneficiarse del hot reload.
+
+globals 17.5.0
+  Provee listas de variables globales predefinidas (browser, node, etc.)
+  para que ESLint no las marque como variables no definidas.
+
+@types/react y @types/react-dom
+  Definiciones de tipos TypeScript para React y ReactDOM.
+  Aunque el proyecto usa JavaScript, estas definiciones mejoran el
+  autocompletado e intellisense en editores como VS Code.
+
+================================================================================
+FLUJO DE DATOS COMPLETO - COMO FUNCIONA EL SISTEMA
+================================================================================
+
+1. El usuario abre el navegador en http://localhost:5173
+2. Vite sirve el index.html -> carga main.jsx -> monta <App /> -> muestra CreateTicket
+3. El usuario escribe un titulo y descripcion en el formulario
+4. El usuario hace clic en "Registrar"
+5. CreateTicket.jsx ejecuta handleSubmit:
+     - Construye { titulo, descripcion }
+     - Envia HTTP POST a http://localhost:5139/api/ticket con JSON
+6. La solicitud llega al backend .NET:
+     - El middleware CORS valida que viene de localhost:5173 (OK)
+     - ASP.NET Core enruta la solicitud a TicketController.Create()
+     - El model binding deserializa el JSON a CreateTicketDto
+7. TicketController llama a ITicketService.CreateTicketAsync(dto)
+8. TicketService recibe el DTO:
+     - Crea un objeto Ticket con titulo y descripcion del DTO
+     - La FechaCreacion se asigna automaticamente a DateTime.UtcNow
+9. TicketService llama a ITicketRepository.AddAsync(ticket)
+10. TicketRepository ejecuta:
+      - _context.Tickets.AddAsync(ticket) -> EF Core prepara el INSERT
+      - _context.SaveChangesAsync() -> EF Core ejecuta el SQL en PostgreSQL
+11. El ticket queda guardado en la tabla "Tickets" de PostgreSQL
+12. El servicio retorna "Ticket registrado correctamente."
+13. El controlador retorna HTTP 200 OK con { "mensaje": "Ticket registrado correctamente." }
+14. El frontend recibe la respuesta, parsea el JSON y muestra un alert con el mensaje
+15. El formulario se limpia (titulo y descripcion vuelven a string vacio)
+
+================================================================================
+COMANDOS UTILES PARA EJECUTAR EL PROYECTO
+================================================================================
+
+-- Iniciar el BACKEND --
+cd backend
+dotnet run --project ConstruSoftTicket.API
+
+La API estara disponible en: http://localhost:5139
+Swagger UI estara en:        http://localhost:5139/swagger
+
+-- Iniciar el FRONTEND --
+cd frontend
+npm install        (solo la primera vez, instala dependencias)
+npm run dev
+
+El frontend estara en: http://localhost:5173
+
+-- Migraciones de base de datos (desde carpeta backend) --
+dotnet ef migrations add NombreMigracion --project ConstruSoftTicket.Infrastructure --startup-project ConstruSoftTicket.API
+dotnet ef database update --project ConstruSoftTicket.Infrastructure --startup-project ConstruSoftTicket.API
+
+-- Requisitos previos --
+- .NET 8 SDK instalado
+- Node.js 18+ instalado
+- PostgreSQL instalado y corriendo en localhost:5432
+- Base de datos "ConstruSoftTicketDB" creada en PostgreSQL
+- Usuario "postgres" con password "12345"
+
+================================================================================
+FIN DEL DOCUMENTO
+================================================================================

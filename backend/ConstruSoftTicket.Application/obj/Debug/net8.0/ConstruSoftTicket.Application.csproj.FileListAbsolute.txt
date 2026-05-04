@@ -1,0 +1,15 @@
+C:\Users\r0108\Desktop\ConstruSoftTicket\backend\ConstruSoftTicket.Application\bin\Debug\net8.0\ConstruSoftTicket.Application.deps.json
+C:\Users\r0108\Desktop\ConstruSoftTicket\backend\ConstruSoftTicket.Application\bin\Debug\net8.0\ConstruSoftTicket.Application.dll
+C:\Users\r0108\Desktop\ConstruSoftTicket\backend\ConstruSoftTicket.Application\bin\Debug\net8.0\ConstruSoftTicket.Application.pdb
+C:\Users\r0108\Desktop\ConstruSoftTicket\backend\ConstruSoftTicket.Application\bin\Debug\net8.0\ConstruSoftTicket.Domain.dll
+C:\Users\r0108\Desktop\ConstruSoftTicket\backend\ConstruSoftTicket.Application\bin\Debug\net8.0\ConstruSoftTicket.Domain.pdb
+C:\Users\r0108\Desktop\ConstruSoftTicket\backend\ConstruSoftTicket.Application\obj\Debug\net8.0\ConstruSoftTicket.Application.csproj.AssemblyReference.cache
+C:\Users\r0108\Desktop\ConstruSoftTicket\backend\ConstruSoftTicket.Application\obj\Debug\net8.0\ConstruSoftTicket.Application.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\r0108\Desktop\ConstruSoftTicket\backend\ConstruSoftTicket.Application\obj\Debug\net8.0\ConstruSoftTicket.Application.AssemblyInfoInputs.cache
+C:\Users\r0108\Desktop\ConstruSoftTicket\backend\ConstruSoftTicket.Application\obj\Debug\net8.0\ConstruSoftTicket.Application.AssemblyInfo.cs
+C:\Users\r0108\Desktop\ConstruSoftTicket\backend\ConstruSoftTicket.Application\obj\Debug\net8.0\ConstruSoftTicket.Application.csproj.CoreCompileInputs.cache
+C:\Users\r0108\Desktop\ConstruSoftTicket\backend\ConstruSoftTicket.Application\obj\Debug\net8.0\ConstruS.288E2A56.Up2Date
+C:\Users\r0108\Desktop\ConstruSoftTicket\backend\ConstruSoftTicket.Application\obj\Debug\net8.0\ConstruSoftTicket.Application.dll
+C:\Users\r0108\Desktop\ConstruSoftTicket\backend\ConstruSoftTicket.Application\obj\Debug\net8.0\refint\ConstruSoftTicket.Application.dll
+C:\Users\r0108\Desktop\ConstruSoftTicket\backend\ConstruSoftTicket.Application\obj\Debug\net8.0\ConstruSoftTicket.Application.pdb
+C:\Users\r0108\Desktop\ConstruSoftTicket\backend\ConstruSoftTicket.Application\obj\Debug\net8.0\ref\ConstruSoftTicket.Application.dll
