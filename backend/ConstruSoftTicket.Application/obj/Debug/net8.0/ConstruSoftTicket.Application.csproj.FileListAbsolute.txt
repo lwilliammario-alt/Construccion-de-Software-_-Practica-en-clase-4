@@ -13,3 +13,4 @@ C:\Users\r0108\Desktop\ConstruSoftTicket\backend\ConstruSoftTicket.Application\o
 C:\Users\r0108\Desktop\ConstruSoftTicket\backend\ConstruSoftTicket.Application\obj\Debug\net8.0\refint\ConstruSoftTicket.Application.dll
 C:\Users\r0108\Desktop\ConstruSoftTicket\backend\ConstruSoftTicket.Application\obj\Debug\net8.0\ConstruSoftTicket.Application.pdb
 C:\Users\r0108\Desktop\ConstruSoftTicket\backend\ConstruSoftTicket.Application\obj\Debug\net8.0\ref\ConstruSoftTicket.Application.dll
+C:\Users\r0108\Desktop\ConstruSoftTicket\backend\ConstruSoftTicket.Application\obj\Debug\net8.0\ConstruSoftTicket.Application.sourcelink.json

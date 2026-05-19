@@ -9,3 +9,4 @@ C:\Users\r0108\Desktop\ConstruSoftTicket\backend\ConstruSoftTicket.Domain\obj\De
 C:\Users\r0108\Desktop\ConstruSoftTicket\backend\ConstruSoftTicket.Domain\obj\Debug\net8.0\refint\ConstruSoftTicket.Domain.dll
 C:\Users\r0108\Desktop\ConstruSoftTicket\backend\ConstruSoftTicket.Domain\obj\Debug\net8.0\ConstruSoftTicket.Domain.pdb
 C:\Users\r0108\Desktop\ConstruSoftTicket\backend\ConstruSoftTicket.Domain\obj\Debug\net8.0\ref\ConstruSoftTicket.Domain.dll
+C:\Users\r0108\Desktop\ConstruSoftTicket\backend\ConstruSoftTicket.Domain\obj\Debug\net8.0\ConstruSoftTicket.Domain.sourcelink.json

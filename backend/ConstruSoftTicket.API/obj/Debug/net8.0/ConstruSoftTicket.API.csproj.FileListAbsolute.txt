@@ -109,3 +109,4 @@ C:\Users\r0108\Desktop\ConstruSoftTicket\backend\ConstruSoftTicket.API\obj\Debug
 C:\Users\r0108\Desktop\ConstruSoftTicket\backend\ConstruSoftTicket.API\obj\Debug\net8.0\ConstruSoftTicket.API.pdb
 C:\Users\r0108\Desktop\ConstruSoftTicket\backend\ConstruSoftTicket.API\obj\Debug\net8.0\ConstruSoftTicket.API.genruntimeconfig.cache
 C:\Users\r0108\Desktop\ConstruSoftTicket\backend\ConstruSoftTicket.API\obj\Debug\net8.0\ref\ConstruSoftTicket.API.dll
+C:\Users\r0108\Desktop\ConstruSoftTicket\backend\ConstruSoftTicket.API\obj\Debug\net8.0\ConstruSoftTicket.API.sourcelink.json

@@ -17,3 +17,4 @@ C:\Users\r0108\Desktop\ConstruSoftTicket\backend\ConstruSoftTicket.Infrastructur
 C:\Users\r0108\Desktop\ConstruSoftTicket\backend\ConstruSoftTicket.Infrastructure\obj\Debug\net8.0\ConstruSoftTicket.Infrastructure.pdb
 C:\Users\r0108\Desktop\ConstruSoftTicket\backend\ConstruSoftTicket.Infrastructure\obj\Debug\net8.0\ConstruSoftTicket.Infrastructure.genruntimeconfig.cache
 C:\Users\r0108\Desktop\ConstruSoftTicket\backend\ConstruSoftTicket.Infrastructure\obj\Debug\net8.0\ref\ConstruSoftTicket.Infrastructure.dll
+C:\Users\r0108\Desktop\ConstruSoftTicket\backend\ConstruSoftTicket.Infrastructure\obj\Debug\net8.0\ConstruSoftTicket.Infrastructure.sourcelink.json

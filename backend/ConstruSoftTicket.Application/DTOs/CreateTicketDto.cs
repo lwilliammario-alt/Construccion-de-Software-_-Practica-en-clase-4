@@ -1,13 +1,17 @@
-// Define el espacio de nombres para los objetos de transferencia de datos (DTOs) de la capa de aplicación
-namespace ConstruSoftTicket.Application.DTOs;
+using System.ComponentModel.DataAnnotations;
 
-// DTO (Data Transfer Object) que contiene los datos necesarios para crear un nuevo ticket
-// Solo expone los campos que el cliente puede enviar, sin incluir Id ni FechaCreacion
-public class CreateTicketDto
+namespace ConstruSoftTicket.Application.DTOs
 {
-    // Título del ticket enviado por el cliente en la solicitud HTTP
-    public string Titulo { get; set; } = string.Empty;
+    public class CreateTicketDto
+    {
+        [Required(ErrorMessage = "El título es obligatorio.")]
+        [MinLength(5, ErrorMessage = "El título debe tener al menos 5 caracteres.")]
+        [MaxLength(100, ErrorMessage = "El título no puede exceder 100 caracteres.")]
+        public string Titulo { get; set; } = string.Empty;
 
-    // Descripción del ticket enviada por el cliente en la solicitud HTTP
-    public string Descripcion { get; set; } = string.Empty;
+        [Required(ErrorMessage = "La descripción es obligatoria.")]
+        [MinLength(10, ErrorMessage = "La descripción debe tener al menos 10 caracteres.")]
+        [MaxLength(500, ErrorMessage = "La descripción no puede exceder 500 caracteres.")]
+        public string Descripcion { get; set; } = string.Empty;
+    }
 }
